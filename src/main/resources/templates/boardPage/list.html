@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<table>
+    <tr>
+        <th>id</th>
+        <th>제목</th>
+        <th>작성자</th>
+        <th>비밃번호</th>
+        <th>내용</th>
+        <th>조회수</th>
+        <th>작성시간</th>
+        <th>상세조회</th>
+        <th>삭제</th>
+        <th>수정</th>
+    </tr>
+    <tr th:each="board: ${board}">
+        <td th:text="${board.id}"></td>
+        <td><a th:href="@{|/board/${board.id}}" th:text="${board.boardTitle}"></a></td>
+        <td th:text="${board.boardWriter}"></td>
+        <td th:text="${board.boardPassword}"></td>
+        <td th:text="${board.boardContents}"></td>
+        <td th:text="${board.boardHits}"></td>
+        <td th:text="*{#temporals.format(board.createdTime, 'yyyy-MM-dd HH:nn:ss')}"></td>
+        <td>
+            <a th:href="@{|/board/delete/${board.id}|}">삭제</a>
+        </td>
+        <td>
+            <a th:href="@{|/board/update/${board.id}|}">수정</a>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
