@@ -6,7 +6,59 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <p th:text="${board}"></p>
-    <a href="">삭제</a>
+<table>
+    <tr>
+        <th>id</th>
+        <th>제목</th>
+        <th>작성자</th>
+        <th>비밃번호</th>
+        <th>내용</th>
+        <th>조회수</th>
+        <th>작성시간</th>
+        <th>상세조회</th>
+        <th>삭제</th>
+        <th>수정</th>
+    </tr>
+    <tr>
+        <td th:text="${board.id}"></td>
+        <td><a th:href="@{|/board/${board.id}}" th:text="${board.boardTitle}"></a></td>
+        <td th:text="${board.boardWriter}"></td>
+        <td th:text="${board.boardPassword}"></td>
+        <td th:text="${board.boardContents}"></td>
+        <td th:text="${board.boardHits}"></td>
+        <td th:text="*{#temporals.format(board.createdTime, 'yyyy-MM-dd HH:nn:ss')}"></td>
+        <td><button onclick="req(1)">수정</button></td>
+        <td><button onclick="req(2)">삭제</button></td>
+        <td id="pw"></td>
+    </tr>
+</table>
 </body>
+<script th:inline="javascript">
+    const req = (num) => {
+        let inputTag = "비밀번호 입력: <input type=\"text\" id=\"password\">\n" +
+            "<button onclick=\"pwCheck("+num+")\">확인<button>";
+        document.getElementById("pw").innerHTML = inputTag;
+
+    }
+    const pwCheck = (num) => {
+        const  pwConfirm = document.getElementById("password").value;
+        const pw = [[${board.boardPassword}]];
+        const id = [[${board.id}]];
+        if(pw == pwConfirm) {
+            if(num == 1) {
+                location.href = "/board/update/"+id;
+            }else {
+                location.href = "/board/delete/"+id;
+            }
+        }else {
+            alert("틀려요");
+        }
+        // if(pw = pwConfirm) {
+        //     alert("같아요");
+        //     location.href = "board/update/"+id;
+        // }else {
+        //     alert("틀려요");
+        // }
+    }
+</script>
 </html>

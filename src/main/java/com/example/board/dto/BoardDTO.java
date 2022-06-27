@@ -20,12 +20,20 @@ public class BoardDTO {
     private LocalDateTime createdTime;
     private LocalDateTime updatedTime;
 
-    public BoardDTO(String boardTitle, String boardWriter, String boardPassword,String boardContents) {
+    public BoardDTO(Long id, String boardTitle, String boardWriter, int boardHits, LocalDateTime createdTime) {
+        this.id = id;
+        this.boardTitle = boardTitle;
+        this.boardWriter = boardWriter;
+        this.boardHits = boardHits;
+        this.createdTime = createdTime;
+    }
+    public BoardDTO(String boardTitle, String boardWriter, String boardPassword, String boardContents) {
         this.boardTitle = boardTitle;
         this.boardWriter = boardWriter;
         this.boardPassword = boardPassword;
         this.boardContents = boardContents;
     }
+
     public static BoardDTO toMemberDTO(BoardEntity boardEntity){
         BoardDTO boardDTO = new BoardDTO();
         boardDTO.setId(boardEntity.getId());

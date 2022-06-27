@@ -1,8 +1,12 @@
 package com.example.board.controller;
 
+import com.example.board.common.PagingConst;
 import com.example.board.dto.BoardDTO;
 import com.example.board.service.BoardService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -53,6 +57,21 @@ public class BoardController {
     public String update (@ModelAttribute BoardDTO boardDTO) {
         boardService.update(boardDTO);
         return "redirect:/board/"+boardDTO.getId();
+    }
+
+    // /board?page=1
+    // /board/3/1
+    // rest api: 주소값만으로 자원을 식별 /board/10
+
+    @GetMapping
+    public String paging(@PageableDefault(page = 1) Pageable pageable, Model model) {
+        Page<BoardDTO> boardList = boardService.paging(pageable); // pageable 인터페이스
+        model.addAttribute("boardList", boardList);
+        int startPage = (((int) (Math.ceil((double) pageable.getPageNumber() / PagingConst.BLOCK_LIMIT))) - 1) * PagingConst.BLOCK_LIMIT + 1;
+        int endPage = ((startPage + PagingConst.BLOCK_LIMIT - 1) < boardList.getTotalPages()) ? startPage + PagingConst.BLOCK_LIMIT - 1 : boardList.getTotalPages();
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
+        return "boardPage/paging";
     }
 
 
