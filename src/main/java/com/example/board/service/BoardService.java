@@ -11,7 +11,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +23,17 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BoardService {
     private final BoardRepository boardRepository;
-    public Long save(BoardDTO boardDTO) {
+    public Long save(BoardDTO boardDTO) throws IOException {
+        MultipartFile boardFile = boardDTO.getBoardFile();
+        String boardFileName = boardDTO.getBoardFileName();
+        boardFileName = System.currentTimeMillis() + "_" + boardFileName;
+        String savePath = "D:\\springboot_img\\" + boardFileName;
+        if(!boardFile.isEmpty()){
+            boardFile.transferTo(new File(savePath));
+        }
+
+        boardDTO.setBoardFileName(boardFileName);
+
         BoardEntity boardEntity = BoardEntity.toEntity(boardDTO);
         Long id = boardRepository.save(boardEntity).getId();
         return id;
@@ -36,13 +49,25 @@ public class BoardService {
 
     @Transactional
     public BoardDTO detail(Long id) {
+        boardRepository.boardHits(id);
         Optional<BoardEntity> optionalBoardEntity = boardRepository.findById(id);
         // 조회수 처리
-        // native sql: utpdae board_table set boardHits=boardHits+1 where id=?
-        boardRepository.boardHits(id);
+        // native sql: update board_table set boardHits=boardHits+1 where id=?
         if(optionalBoardEntity.isPresent()){
          BoardEntity boardEntity = optionalBoardEntity.get();
          BoardDTO boardDTO = BoardDTO.toMemberDTO(boardEntity);
+            return boardDTO;
+        }else {
+            return null;
+        }
+    }
+    public BoardDTO detail2(Long id) {
+        Optional<BoardEntity> optionalBoardEntity = boardRepository.findById(id);
+        // 조회수 처리
+        // native sql: update board_table set boardHits=boardHits+1 where id=?
+        if(optionalBoardEntity.isPresent()){
+            BoardEntity boardEntity = optionalBoardEntity.get();
+            BoardDTO boardDTO = BoardDTO.toMemberDTO(boardEntity);
             return boardDTO;
         }else {
             return null;
@@ -52,7 +77,13 @@ public class BoardService {
     public void delete(Long id) {
         boardRepository.deleteById(id);
     }
-    public void update(BoardDTO boardDTO) {
+    public void update(BoardDTO boardDTO) throws IOException{
+        MultipartFile boardFile = boardDTO.getBoardFile();
+        String boardFileName = boardDTO.getBoardFileName();
+        boardFileName = System.currentTimeMillis() + "_" + boardFileName;
+        String savePath = "D:\\springboot_img\\" + boardFileName;
+        boardFile.transferTo(new File(savePath));
+        boardDTO.setBoardFileName(boardFileName);
         boardRepository.save(BoardEntity.toUpdateEntity(boardDTO));
     }
     public Page<BoardDTO> paging(Pageable pageable) {

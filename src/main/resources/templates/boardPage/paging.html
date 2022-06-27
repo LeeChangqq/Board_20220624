@@ -54,8 +54,13 @@
         </li>
 
         <!-- startPage ~ endPage 까지 숫자를 만들어주는 역할 -->
+<!--        <li th:each="page: ${#numbers.sequence(startPage, endPage)}"-->
+<!--            th:class="${page == boardList.number + 1} ? 'page-item active'" class="page-item">-->
+<!--            <a class="page-link" th:text="${page}" th:href="@{/board(page=${page})}"></a>-->
+<!--        </li>-->
         <li th:each="page: ${#numbers.sequence(startPage, endPage)}"
-            th:class="${page == boardList.number + 1} ? 'page-item active'" class="page-item">
+            th:class="${page == boardList.number + 1} ? 'page-item active'" class="page-item"
+            th:if="${page} > 0">
             <a class="page-link" th:text="${page}" th:href="@{/board(page=${page})}"></a>
         </li>
 
@@ -70,7 +75,7 @@
         </li>
 
         <li class="page-item">
-            <a class="page-link" th:href="@{/board(page=${boardList.totalPages})}">
+            <a class="page-link" th:href="${endPage} < 1 ? @{/board(page=${boardList.totalPages + 1})} : @{/board(page=${boardList.totalPages})}">
                 <span>Last</span>
             </a>
         </li>
