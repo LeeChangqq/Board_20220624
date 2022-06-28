@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -18,5 +19,9 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
     @Modifying
     @Query(value = "update BoardEntity b set b.boardHits=b.boardHits+1 where b.id = :id")
     void boardHits(@Param("id") Long id);
+
+    // 검색 쿼리
+    // select * from board_table where board_title like '%?%'
+    List<BoardEntity> findByBoardTitleContainingOrBoardContentsContaining(String q1, String q2);
 
 }

@@ -3,7 +3,9 @@ package com.example.board.service;
 import com.example.board.common.PagingConst;
 import com.example.board.dto.BoardDTO;
 import com.example.board.entity.BoardEntity;
+import com.example.board.entity.MemberEntity;
 import com.example.board.repository.BoardRepository;
+import com.example.board.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +25,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BoardService {
     private final BoardRepository boardRepository;
+    private final MemberRepository memberRepository;
     public Long save(BoardDTO boardDTO) throws IOException {
         MultipartFile boardFile = boardDTO.getBoardFile();
         String boardFileName = boardDTO.getBoardFileName();
@@ -34,9 +37,18 @@ public class BoardService {
 
         boardDTO.setBoardFileName(boardFileName);
 
-        BoardEntity boardEntity = BoardEntity.toEntity(boardDTO);
-        Long id = boardRepository.save(boardEntity).getId();
-        return id;
+        // toEntity 메서드에 회원 엔티티를 같이 전달해야 함.
+        Optional<MemberEntity> optionalMemberEntity =
+                memberRepository.findByMemberEmail(boardDTO.getBoardWriter());
+        if(optionalMemberEntity.isPresent()){
+            MemberEntity memberEntity = optionalMemberEntity.get();
+            BoardEntity boardEntity = BoardEntity.toEntity(boardDTO, memberEntity);
+            Long id = boardRepository.save(boardEntity).getId();
+            return id;
+        }else {
+            return null;
+        }
+
     }
     public List<BoardDTO> findAll() {
         List<BoardEntity> boardEntity = boardRepository.findAll();
@@ -105,5 +117,14 @@ public class BoardService {
                         board.getCreatedTime()
                 ));
         return boardList;
+    }
+
+    public List<BoardDTO> search(String q1, String q2) {
+        List<BoardEntity> boardEntityList = boardRepository.findByBoardTitleContainingOrBoardContentsContaining(q1,q2);
+        List<BoardDTO> boardDTOList = new ArrayList<>();
+        for(BoardEntity boardEntity: boardEntityList) {
+            boardDTOList.add(BoardDTO.toMemberDTO(boardEntity));
+        }
+        return boardDTOList;
     }
 }
